@@ -1,0 +1,307 @@
+info:
+    app:
+        name: '@project.artifactId@'
+        encoding: '@project.build.sourceEncoding@'
+        version: '@project.version@'
+        java: '@java.version@'
+        profileFile: default
+
+server:
+    port: 9006
+
+drap:
+    cors:
+        enabled: true
+    db:
+        # 执行数据库脚本，进行数据库初始化
+        # 可选值：true/IgnoreError/false，IgnoreError表示忽略错误
+        init: true
+    entity:
+        #reverse: dp_entity, dp_entity_attr, dp_dsql, dp_dsql_comp, dp_dsql_comp_rel,pt_domain,pt_secret,pt_organization,pt_dictionary,pt_user,pt_dictionary_copy,pt_userPrincipal,pt_role,pt_rolePrincipal,pt_appType,pt_function,pt_rolePrivilege
+        reverse: ss_file_convert, ss_bucket, ss_file, ss_user, ss_group, ss_user_group, ss_user_group_fav,ss_share
+    #Storage
+    storage:
+        #基于本地文件系统存储文件的配置信息
+        localfs:
+            #全局配置用于存储文件的位置，如果bucket中不指定位置的话，文件就都存放在这里了
+            dir: D:/temp/drap/storage/
+            #文件夹个数，两级文件夹，每个文件夹的子文件夹数量，其平方是用来存储文件的文件夹总数
+            dirnum: 10
+    #TaskExecutor配置
+    executor:
+        #这是默认使用的TaskExecutor，其拒绝策略默认设置为“由提交者直接执行任务”
+        drapTaskExecutor:
+            corepoolsize: 5
+            maxpoolsize: 10
+            queuecapacity: 250
+    
+drap_platform:
+    aa:
+        message:
+            syc: true
+            postUrl: http://localhost:8004/messages/topics/drap_aa_dataSyc
+            debug: true
+    customization:
+        yymd:
+             ws:
+                url: http://10.0.6.28:9006/services/WSTestService?wsdl
+    auth:
+        identity:
+            domain: localhost
+            expire:
+                minutes.jwt: 1440
+                minutes.jwt.refresh: 1440
+            jwt.secret: bjsasc
+            jwt.enabled: true
+        white_urls: '^/test/,^/login,^/authASP/login,^/authASP/(resetPWDout|refreshSessionToken|loginByToken|user),^/verify_code/,^/init/,^/hystrix.stream,^/wxqy/,^/subscribe/,^/ms/,^/oauth/'
+        login:
+            pwd:
+                #是否进行口令相关检查
+                check: false
+                #登录口令长度
+                check_length: 8
+                #登录口令复杂度
+                check_sec: 3
+                #登录口令过期时间，单位天;0代表永不过期
+                check_exprieTime: 7
+                #登录口令过期前提前几天提醒用户去修改口令
+                check_exprieNoticeTime: 3
+                #修改密码的地址
+                check_changeWhere: /static/pwdSecurity.html?
+                #口令错几次时临时锁定用户账号，值不存在时相当于不启用此功能
+                freeze: 5
+                #口令错导致临时锁定用户账号时，多长时间后可通过正确的登录解锁用户，单位为分钟
+                freezeTime: 30
+                #口令错导致临时锁定用户账号时，是否能锁定管理员，true锁定，false不锁定
+                freezeAdmin: false
+            #登录成功的跳转目标
+            target:
+                default: http://localhost:9006/main/default.html
+                passwordLogin: 
+                PasswordLogin4Netdisk:
+                passwordLogin4Mini: 
+                passwordLogin4MiniAdmin:
+    #禁用Tomcat Websocket服务
+    tomcat.websocket.enabled: false
+    util:
+        #httpclient, restTemplate time out
+        httpclient:
+            connect.timeout: 10000
+            read.timeout: 10000
+
+mybatis:
+    mapperLocations: classpath:mapper/*.xml
+    typeAliasesPackage: tk.mybatis.springboot.model
+
+management:
+    #指定管理endpoint位置
+    port: 9107
+    security:
+        enabled: false
+    health:
+        #这里没有正确配置邮件口令，所以不需要健康检查
+        mail.enabled: false
+    #禁用ApplicationContextHeaderFilter，Response中不包含X-Application-Context Header信息
+    add-application-context-header: false
+
+#Actuator CORS
+endpoints:
+    trace:
+        filter:
+            #禁用WebRequestTraceFilter
+            enabled: true
+    metrics:
+        #禁用MetricsFilter
+        filter:
+            enabled: true
+    cors:
+        #这里简化了设置，允许任意来源的跨域访问
+        # Comma-separated list of origins to allow. '*' allows all origins. When not set, CORS support is disabled.
+        allowed-origins: "*"
+        # Comma-separated list of methods to allow. '*' allows all methods.
+        allowed-methods: OPTIONS,GET,POST,PUT,DELETE
+        # Set whether credentials are supported. When not set, credentials are not supported.
+        allow-credentials:
+        # Comma-separated list of headers to allow in a request. '*' allows all headers.
+        allowed-headers:
+        # Comma-separated list of headers to include in a response.
+        exposed-headers:
+        # How long, in seconds, the response from a pre-flight request can be cached
+        max-age: 1800
+
+logging:
+    level:
+        com.bjsasc.drap: DEBUG 
+
+spring:
+    profiles:
+        include: 
+    http:
+        #禁止自动解析，因为不需要临时文件
+        multipart:
+            enabled: false
+        #Http编码配置，其实是设置HttpEncodingProperties中的值，在HttpEncodingAutoConfiguration中生效
+        encoding:
+            charset: UTF-8
+            forceRequest: false
+            forceResponse: true
+    resources:
+        #cache:
+            #period: 86400
+    #发送邮件配置
+    mail:
+        host: mail.bjsasc.com
+        port: 25
+        username: yangtao@bjsasc.com
+        password: 
+        properties:
+            mail.smtp.auth: false
+            mail.smtp.starttls.enable: false
+            mail.smtp.socketFactory.class: javax.net.ssl.SSLSocketFactory
+
+    #cache
+    cache:
+        # NONE, SIMPLE, CAFFEINE, REDIS
+        type: CAFFEINE
+        cache-names: default,meta_entity,meta_dsql,drap_storage,PT_JWT_EXPIRE_CACHE,PT_JWT_EXPIRE_REFRESH_CACHE,PT_VERIFYCODE_CACHE,PT_CODE4PWD_CACHE
+        caffeine:
+            spec: maximumSize=500,expireAfterWrite=1800s
+
+    #RDB配置
+    #连接池的配置信息  
+    datasource:
+        druid:
+            name: base
+            transaction: true
+            url: jdbc:mysql://10.0.39.215:3306/netdisk2?useSSL=false&useUnicode=true&characterEncoding=UTF-8
+            username: yt
+            password: yt
+            driver-class-name: com.mysql.cj.jdbc.Driver
+            validConnectionCheckerClassName: com.alibaba.druid.pool.vendor.MySqlValidConnectionChecker
+            initial-size: 1
+            max-active: 20
+            min-idle: 1
+            max-wait: 60000
+            time-between-eviction-runs-millis: 60000  
+            min-evictable-idle-time-millis: 300000
+            #max-evictable-idle-time-millis: 600000
+            validation-query: 'SELECT 1'  
+            validation-query-timeout: 3000
+            test-while-idle: true
+            test-on-borrow: false
+            test-on-return: false
+            #Oracle建议打开，MySQL可以配置为false
+            pool-prepared-statements: true
+            max-pool-prepared-statement-per-connection-size: 20
+            #wall用以阻止SQL注入  
+            filters: stat,wall,slf4j
+            #filters: stat,slf4j
+            #connectionProperties: config.decrypt=true;config.decrypt.key=MFwwDQYJKoZIhvcNAQEBBQADSwAwSAJBAPmuH1rEmVX8WeOt0moTkyML2pE7BKCEqdghHKtzxjOlehKfrdu6mmxJH4rlgjp2S+nBTNOOgRGDT/NJaQruwQcCAwEAAQ==
+            connectionProperties: remarks=true;useInformationSchema=true;
+            web-stat-filter:
+                #禁用WebStatFilter
+                enabled: true
+            filter:
+                stat:
+                    db-type: mysql
+                    merge-sql: true
+                    slow-sql-millis: 3000
+                    log-slow-sql: true
+
+        project:
+            name: project
+            transaction: true
+            #如果没有设置url属性，则启动时不初始化project数据源，也不会初始化相关的MyBatis运行环境
+            url: jdbc:mysql://10.0.39.215:3306/ztz0410?useSSL=false&useUnicode=true&characterEncoding=UTF-8 
+            //url: jdbc:mysql://10.0.39.215:3306/yt20171215?useSSL=false&useUnicode=true&characterEncoding=UTF-8 
+            username: yt
+            password: yt
+            driver-class-name: com.mysql.cj.jdbc.Driver
+            validConnectionCheckerClassName: com.alibaba.druid.pool.vendor.MySqlValidConnectionChecker
+            initial-size: 1
+            max-active: 20
+            min-idle: 1
+            max-wait: 60000
+            time-between-eviction-runs-millis: 60000  
+            min-evictable-idle-time-millis: 300000
+            #max-evictable-idle-time-millis: 600000
+            validation-query: 'SELECT 1'  
+            validation-query-timeout: 3000
+            test-while-idle: true
+            test-on-borrow: false
+            test-on-return: false
+            #Oracle建议打开，MySQL可以配置为false
+            pool-prepared-statements: true
+            max-pool-prepared-statement-per-connection-size: 20
+            #wall用以阻止SQL注入  
+            filters: stat,wall,slf4j
+            #filters: stat,slf4j
+            #connectionProperties: config.decrypt=true;config.decrypt.key=MFwwDQYJKoZIhvcNAQEBBQADSwAwSAJBAPmuH1rEmVX8WeOt0moTkyML2pE7BKCEqdghHKtzxjOlehKfrdu6mmxJH4rlgjp2S+nBTNOOgRGDT/NJaQruwQcCAwEAAQ==
+            connectionProperties: remarks=true;useInformationSchema=true;
+            web-stat-filter:
+                #禁用WebStatFilter
+                enabled: true
+            filter:
+                stat:
+                    db-type: mysql
+                    merge-sql: true
+                    slow-sql-millis: 3000
+                    log-slow-sql: true
+
+        log:
+            name: log
+            #如果没有设置url属性，则启动时不初始化log数据源，也不会初始化相关的MyBatis运行环境
+            url: jdbc:mysql://10.0.39.215:3306/ztz0410?useSSL=false&useUnicode=true&characterEncoding=UTF-8 
+            username: yt
+            password: yt
+            driver-class-name: com.mysql.cj.jdbc.Driver
+            validConnectionCheckerClassName: com.alibaba.druid.pool.vendor.MySqlValidConnectionChecker
+            initial-size: 1
+            max-active: 20
+            min-idle: 1
+            max-wait: 60000
+            time-between-eviction-runs-millis: 60000  
+            min-evictable-idle-time-millis: 300000
+            #max-evictable-idle-time-millis: 600000
+            validation-query: 'SELECT 1'  
+            validation-query-timeout: 3000
+            test-while-idle: true
+            test-on-borrow: false
+            test-on-return: false
+            #Oracle建议打开，MySQL可以配置为false
+            pool-prepared-statements: true
+            max-pool-prepared-statement-per-connection-size: 20
+            #wall用以阻止SQL注入  
+            filters: stat,wall,slf4j
+            #filters: stat,slf4j
+            #connectionProperties: config.decrypt=true;config.decrypt.key=MFwwDQYJKoZIhvcNAQEBBQADSwAwSAJBAPmuH1rEmVX8WeOt0moTkyML2pE7BKCEqdghHKtzxjOlehKfrdu6mmxJH4rlgjp2S+nBTNOOgRGDT/NJaQruwQcCAwEAAQ==
+            connectionProperties: remarks=true;useInformationSchema=true;
+            web-stat-filter:
+                #禁用WebStatFilter
+                enabled: true
+            filter:
+                stat:
+                    db-type: mysql
+                    merge-sql: true
+                    slow-sql-millis: 3000
+                    log-slow-sql: true
+
+    #Redis配置
+    redis:
+        host: 10.0.32.60
+        port: 6379
+        database: 1
+        password:
+        pool:
+            max-total: 100
+            max-active: 8
+            max-idle: 5
+            max-wait: 20000
+            min-idle: 10
+        timeout: 100000
+
+    #freemarker配置
+    freemarker:
+        templateLoaderPath: classpath:/templates/
+        #不检查模板路径
+        checkTemplateLocation: false
