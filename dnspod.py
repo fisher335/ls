@@ -10,7 +10,7 @@ config = {
     "ID": 67944,                                # 填写你自己的API Token ID
     "TokenID": "fd23a30bfdeb724436f44c71d0a7eae9",      # 填写你自己的API Token
     "domains":{
-        "fengshaomin.com": ['test']        # 填写需要更新的域名及对应的记录
+        "fengshaomin.com": ['home']        # 填写需要更新的域名及对应的记录
     },
     "delay": 10                                 # 检查时间
 }
@@ -54,6 +54,7 @@ def get_local_ip():
 def update_local_ip():
     ip = get_local_ip()
     if ip != ip_cache['cached_ip']:
+        print('本地IP有更新，准备更新到dns'+'本地ip：'+ip+'上次IP：'+ip_cache['cached_ip'])
         ip_cache['cached_ip'] = ip
         ip_cache['refresh_time'] = time.time()
         return True
