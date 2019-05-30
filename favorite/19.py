@@ -5,5 +5,13 @@ from fake_useragent import UserAgent
 
 ua = UserAgent()
 
-for i in range(10):
-    print(ua.random)
+
+def print_random(x: int) -> str:
+    for i in range(x):
+        print(ua.random)
+        print(ua.random)
+    return "time"
+
+
+if __name__ == '__main__':
+    name = print_random(10)

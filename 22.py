@@ -1,13 +1,17 @@
+#-*- coding: utf-8 -*-
+# @Date    : '2019/5/30 0030'
+# @Author  : Terry feng  (fengshaomin@qq.com)
+import os
+
 import subprocess
 target = 1
 up = 0
 down = 0
 li=[]
 while (target < 255):
-        ip = "192.168.31." +str(target)
+        ip = "10.0.37." +str(target)
         output = subprocess.getstatusoutput(["ping","-n","1",ip])
-        print(output[1])
-        if ('超时' in str(output[1])):
+        if ('超时'in str(output[1]) or "无法访问" in str(output[1]) ):
                 print('Host ' + ip + " is offline or unavailable")
                 down+= 1
         else:
