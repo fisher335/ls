@@ -28,10 +28,6 @@ ip_cache = {
 
 def get_local_ip():
     get_ip_url = [
-        'http://ip.6655.com/ip.aspx',
-        'http://members.3322.org/dyndns/getip',
-        'http://icanhazip.com/',
-        'http://ident.me/',
         'http://ipecho.net/plain',
         'http://whatismyip.akamai.com/',
         'http://myip.dnsomatic.com/',
