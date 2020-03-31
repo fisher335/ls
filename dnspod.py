@@ -49,7 +49,7 @@ def get_local_ip():
 
 def update_local_ip():
     ip = get_local_ip()
-    if ip != ip_cache['cached_ip']:
+    if ip != ip_cache['cached_ip'] and len(ip) < 13:
         print('本地IP有更新，准备更新到dns' + '本地ip：' + ip + '上次IP：' + ip_cache['cached_ip'])
         ip_cache['cached_ip'] = ip
         ip_cache['refresh_time'] = time.time()
@@ -137,7 +137,7 @@ if __name__ == '__main__':
                             x.update_record(domain['id'], record['id'], record['name'])
             else:
                 print("IP地址没有变化，暂不更新")
-            time.sleep(config['delay']*60)
+            time.sleep(config['delay'] * 60)
         except Exception as e:
             print("本次更新异常", e.args)
             continue
