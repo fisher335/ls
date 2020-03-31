@@ -8,9 +8,11 @@ def get_mac_addr():
     import uuid
     node = uuid.getnode()
     mac = uuid.UUID(int=node).hex[-12:]
-    return mac.upper()
+    li = mac.upper()
 
+    print("-".join(li))
 
+    return li
 if __name__ == '__main__':
     a = get_mac_addr()
     print(a)

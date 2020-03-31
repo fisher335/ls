@@ -7,14 +7,13 @@ import time
 import random
 
 config = {
-    "ID": 67944,                                # 填写你自己的API Token ID
-    "TokenID": "fd23a30bfdeb724436f44c71d0a7eae9",      # 填写你自己的API Token
-    "domains":{
-        "fengshaomin.com": ['home']        # 填写需要更新的域名及对应的记录
+    "ID": 67944,  # 填写你自己的API Token ID
+    "TokenID": "fd23a30bfdeb724436f44c71d0a7eae9",  # 填写你自己的API Token
+    "domains": {
+        "fengshaomin.com": ['home']  # 填写需要更新的域名及对应的记录
     },
-    "delay": 10                                 # 检查时间
+    "delay": 10  # 检查时间
 }
-
 
 Action_DomainList = 'Domain.List'
 Action_RecordList = 'Record.List'
@@ -36,7 +35,8 @@ def get_local_ip():
 
     while err_counter < 10:
         try:
-            uri = get_ip_url[random.randint(0, len(get_ip_url)-1)]
+            uri = random.choice(get_ip_url)
+            print(uri)
             r = requests.get(uri)
             return r.text
         except requests.RequestException:
@@ -50,7 +50,7 @@ def get_local_ip():
 def update_local_ip():
     ip = get_local_ip()
     if ip != ip_cache['cached_ip']:
-        print('本地IP有更新，准备更新到dns'+'本地ip：'+ip+'上次IP：'+ip_cache['cached_ip'])
+        print('本地IP有更新，准备更新到dns' + '本地ip：' + ip + '上次IP：' + ip_cache['cached_ip'])
         ip_cache['cached_ip'] = ip
         ip_cache['refresh_time'] = time.time()
         return True
@@ -66,7 +66,7 @@ class DnsPod():
     success_code = ["1"]
 
     def invoke(self, action, post_data=None):
-        uri = self.base_uri + '/' +action
+        uri = self.base_uri + '/' + action
         if post_data is None:
             post_data = dict()
         else:
@@ -88,7 +88,7 @@ class DnsPod():
     def get_domains(self):
         ret = self.invoke(Action_DomainList)
         assert ret['status']['code'] in self.success_code
-        if len(ret['domains'])>0:
+        if len(ret['domains']) > 0:
             return ret['domains']
         result = list()
         for domain in ret['domains']:
@@ -98,12 +98,12 @@ class DnsPod():
     def get_records(self, domain_id):
         ret = self.invoke(Action_RecordList, {'domain_id': domain_id})
         assert ret['status']['code'] in self.success_code
-        if len(ret['records'])>0:
+        if len(ret['records']) > 0:
             return ret['records']
         else:
             return None
 
-    def update_record(self, domain_id, record_id ,record_name ,new_ip=None):
+    def update_record(self, domain_id, record_id, record_name, new_ip=None):
         if new_ip is None:
             new_ip = ip_cache['cached_ip']
         ret = self.invoke(Action_RecordModify, {
@@ -119,16 +119,25 @@ class DnsPod():
         assert ret['status']['code'] in self.success_code
 
 
-while True:
-    if update_local_ip():
-        x = DnsPod(config)
-        for domain in x.get_domains():
-            records = x.get_records(domain_id=int(domain['id']))
-            for record in records:
-                if record['name'] in config['domains'][domain['name']]:
-                    print(record)
-                    x.update_record(domain['id'], record['id'], record['name'])
-
-    time.sleep(config['delay']*60)
+class GetIpError(RuntimeError):
+    def __init__(self, info):
+        self.info = info
 
 
+if __name__ == '__main__':
+    while True:
+        try:
+            if update_local_ip():
+                x = DnsPod(config)
+                for domain in x.get_domains():
+                    records = x.get_records(domain_id=int(domain['id']))
+                    for record in records:
+                        if record['name'] in config['domains'][domain['name']]:
+                            print(record)
+                            x.update_record(domain['id'], record['id'], record['name'])
+            else:
+                print("IP地址没有变化，暂不更新")
+            time.sleep(config['delay']*60)
+        except Exception as e:
+            print("本次更新异常", e.args)
+            continue
