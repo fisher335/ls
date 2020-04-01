@@ -60,7 +60,7 @@ def update_local_ip():
 
 class DnsPod():
     base_uri = 'https://dnsapi.cn'
-    user_agent = 'DDNSPOD Update Agent/0.0.1 (lijyigac@gmail.com)'
+    user_agent = 'DDNSPOD Update Agent/0.0.1 (fengshaomina@gmail.com)'
     format = 'json'
     lang = 'cn'
     success_code = ["1"]
