@@ -7,7 +7,8 @@ import requests
 import json
 import time
 import random
-
+FORMAT = "%(asctime)s %(thread)d %(message)s"
+logging.basicConfig(filename='1.log',level=logging.INFO,format=FORMAT)
 config = {
     "ID": 67944,  # 填写你自己的API Token ID
     "TokenID": "fd23a30bfdeb724436f44c71d0a7eae9",  # 填写你自己的API Token
@@ -32,7 +33,6 @@ def get_local_ip():
         sock = socket.create_connection(address=('ns1.dnspod.net', 6666), timeout=10)
         ip = sock.recv(32)
         sock.close()
-        print(ip)
         return ip
 
     except Exception as e:
@@ -44,7 +44,7 @@ def update_local_ip():
     ip = get_local_ip().decode()
     print(ip, ip_cache['cached_ip'], len(ip))
     if ip != ip_cache['cached_ip'] and len(ip) < 16:
-        print('本地IP有更新，准备更新到dns' + '本地ip：' + ip + '上次IP：' + ip_cache['cached_ip'])
+        logging.info('本地IP有更新，准备更新到dns' + '本地ip：' + ip + '上次IP：' + ip_cache['cached_ip'])
         ip_cache['cached_ip'] = ip
         ip_cache['refresh_time'] = time.time()
         return True
@@ -110,6 +110,7 @@ class DnsPod():
         })
 
         print(ret)
+        logging.info(ret)
         assert ret['status']['code'] in self.success_code
 
 
@@ -122,11 +123,11 @@ if __name__ == '__main__':
                     records = x.get_records(domain_id=int(domain['id']))
                     for record in records:
                         if record['name'] in config['domains'][domain['name']]:
-                            print(record)
+                            logging.info(record)
                             x.update_record(domain['id'], record['id'], record['name'])
             else:
-                print("IP地址没有变化，暂不更新")
+                logging.info("IP地址没有变化，暂不更新")
             time.sleep(config['delay'] * 60)
         except Exception as e:
-            print("本次更新异常", e.args)
+            logging.info("本次更新异常", e.args)
             continue
