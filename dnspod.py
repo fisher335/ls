@@ -1,5 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
+import logging
+import socket
 
 import requests
 import json
@@ -26,30 +28,22 @@ ip_cache = {
 
 
 def get_local_ip():
-    get_ip_url = [
-        'http://ipecho.net/plain',
-        'http://whatismyip.akamai.com/',
-        'http://myip.dnsomatic.com/',
-    ]
-    err_counter = 0
+    try:
+        sock = socket.create_connection(address=('ns1.dnspod.net', 6666), timeout=10)
+        ip = sock.recv(32)
+        sock.close()
+        print(ip)
+        return ip
 
-    while err_counter < 10:
-        try:
-            uri = random.choice(get_ip_url)
-            print(uri)
-            r = requests.get(uri)
-            return r.text
-        except requests.RequestException:
-            err_counter += 1
-            time.sleep(1)
-            continue
-
-    raise Exception('Cannot get local ip address.')
+    except Exception as e:
+        logging.error("GetIP Error: %s", e)
+        return None
 
 
 def update_local_ip():
-    ip = get_local_ip()
-    if ip != ip_cache['cached_ip'] and len(ip) < 13:
+    ip = get_local_ip().decode()
+    print(ip, ip_cache['cached_ip'], len(ip))
+    if ip != ip_cache['cached_ip'] and len(ip) < 15:
         print('本地IP有更新，准备更新到dns' + '本地ip：' + ip + '上次IP：' + ip_cache['cached_ip'])
         ip_cache['cached_ip'] = ip
         ip_cache['refresh_time'] = time.time()
@@ -119,11 +113,6 @@ class DnsPod():
         assert ret['status']['code'] in self.success_code
 
 
-class GetIpError(RuntimeError):
-    def __init__(self, info):
-        self.info = info
-
-
 if __name__ == '__main__':
     while True:
         try:
@@ -137,7 +126,7 @@ if __name__ == '__main__':
                             x.update_record(domain['id'], record['id'], record['name'])
             else:
                 print("IP地址没有变化，暂不更新")
-            time.sleep(config['delay'] * 60)
+            time.sleep(config['delay'] * 0.1)
         except Exception as e:
             print("本次更新异常", e.args)
             continue
