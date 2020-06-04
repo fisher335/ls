@@ -2,13 +2,12 @@
 # -*- coding: utf-8 -*-
 import logging
 import socket
-
 import requests
 import json
 import time
-import random
+
 FORMAT = "%(asctime)s %(thread)d %(message)s"
-logging.basicConfig(filename='1.log',level=logging.INFO,format=FORMAT)
+logging.basicConfig(filename='1.log', level=logging.INFO, format=FORMAT)
 config = {
     "ID": 67944,  # 填写你自己的API Token ID
     "TokenID": "fd23a30bfdeb724436f44c71d0a7eae9",  # 填写你自己的API Token
