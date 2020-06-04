@@ -126,8 +126,8 @@ if __name__ == '__main__':
                             logging.info(record)
                             x.update_record(domain['id'], record['id'], record['name'])
             else:
-                logging.info("IP地址没有变化，暂不更新")
+                logging.info("----IP地址没有变化，暂不更新-----")
             time.sleep(config['delay'] * 60)
         except Exception as e:
-            logging.info("本次更新异常", e.args)
+            logging.info("-------------------本次更新异常------------------", e.args)
             continue
