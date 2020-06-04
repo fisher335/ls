@@ -43,7 +43,7 @@ def get_local_ip():
 def update_local_ip():
     ip = get_local_ip().decode()
     print(ip, ip_cache['cached_ip'], len(ip))
-    if ip != ip_cache['cached_ip'] and len(ip) < 15:
+    if ip != ip_cache['cached_ip'] and len(ip) < 16:
         print('本地IP有更新，准备更新到dns' + '本地ip：' + ip + '上次IP：' + ip_cache['cached_ip'])
         ip_cache['cached_ip'] = ip
         ip_cache['refresh_time'] = time.time()
