@@ -1,0 +1,11 @@
+{
+    "hekili_box": {
+        "left": 915,
+        "top": 560,
+        "width": 80,
+        "height": 100
+    },
+    "toggle_key": "f11",
+    "threshold": 0.7,
+    "skill_delay": 0.3
+}

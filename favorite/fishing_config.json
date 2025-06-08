@@ -1,0 +1,16 @@
+{
+    "roi": {
+        "left": 300,
+        "top": 300,
+        "width": 500,
+        "height": 500
+    },
+    "threshold": 25,
+    "sensitivity": 500,
+    "cast_key": "1",
+    "delay": 3.0,
+    "templates": {
+        "day": "float_day.png",
+        "night": "float_night.png"
+    }
+}
